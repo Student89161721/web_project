@@ -1,9 +1,9 @@
 import datetime
 import sqlalchemy
 from .db_session import SqlAlchemyBase
+from sqlalchemy_serializer import SerializerMixin
 
-
-class Hostel(SqlAlchemyBase):
+class Hostel(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'hostel'
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
@@ -32,3 +32,4 @@ class Hostel(SqlAlchemyBase):
     Parsing_dates = sqlalchemy.Column(sqlalchemy.String)
 
     #review  можно сделать отдельную таблицу под отзывы и сюда их id подключать?
+
