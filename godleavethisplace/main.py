@@ -81,8 +81,8 @@ def reqister():
 def hostels(page_num):
     db_sess = db_session.create_session()
     db_sess = db_session.create_session()
-    content = db_sess.query(Hostel).filter(10 * (page_num - 1) <= Hostel.id <= 10 * page_num).all()
-    return render_template('hostels.html', page_num=[i.id for i in content])
+    content = db_sess.query(Hostel).filter(Hostel.id <= 10 * page_num, 10 * (page_num - 1) <= Hostel.id).all()
+    return render_template('hostels.html', page_num=content)
 
 @app.errorhandler(404)
 def not_found(error):
