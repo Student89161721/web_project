@@ -7,6 +7,7 @@ import sqlalchemy_serializer
 from flask import jsonify
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from wtforms import PasswordField, StringField, TextAreaField, SubmitField, EmailField, BooleanField
+from forms.user import RegisterForm
 
 
 
@@ -80,9 +81,43 @@ def reqister():
 @app.route('/hostels/page/<int:page_num>', methods=['GET', 'POST'])
 def hostels(page_num):
     db_sess = db_session.create_session()
+    content = db_sess.query(Hostel).filter(Hostel.id <= 10 * page_num, 10 * (page_num - 1) <= Hostel.id).all()
+    return render_template('hostels.html', content=content, page_num=page_num)
+
+@app.route('/hostels/current/<int:hostel_id>', methods=['GET', 'POST'])
+def hostels_current(hostel_id):
     db_sess = db_session.create_session()
-    content = db_sess.query(Hostel).filter(10 * (page_num - 1) <= Hostel.id <= 10 * page_num).all()
-    return render_template('hostels.html', page_num=[i.id for i in content])
+    content = db_sess.query(Hostel).filter(Hostel.id == hostel_id).all()
+    return render_template('current_hostel.html', content=content, hostel_id=hostel_id)
+
+@app.route('/hostels/edit/<int:hostel_id>',  methods=['GET', 'POST'])
+@login_required
+def add_news():
+    form = Hostel()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        hostel = Hostel()
+        hostel.Title = 'ТЕСТОВАЯ ПОПЫТКА'
+        hostel.Email = 'test@email.ru'
+        hostel.Region = 'ТЕСТОВЫЙ РЕГИОН'
+        hostel.Parsing_dates = 'ТЕСТОВАЯ ШТУКА'
+
+        db_sess.merge(hostel)
+        db_sess.commit()
+        return redirect('/')
+    return render_template('hostels_edit.html', title='Добавление новости',
+                           form=form)
+
+@app.route('/user/<int:user_id>', methods=['GET', 'POST'])
+def user_current(user_id):
+    db_sess = db_session.create_session()
+    print(current_user.id)
+    content = db_sess.query(User).filter(User.id == user_id).first()
+    if current_user.is_authenticated and current_user.id == user_id:
+        return render_template('account.html', content=content)
+    else:
+        return 'ЗАГЛУШКА'
+
 
 @app.errorhandler(404)
 def not_found(error):

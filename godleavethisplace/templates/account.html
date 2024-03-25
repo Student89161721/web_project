@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="d-flex justify-content-center flex-row bd-highlight">
+    <div class="p-2 bd-highlight">НУ У МЕНЯ НЕ ПОЛУЧАЕТСЯ КАРТИНТА</div>
+    <div class="p-2 bd-highlight">
+          <div class="d-flex flex-column bd-highlight">
+              <h1>Общаяя инфа</h1>
+              <div class="d-flex flex-column">
+                  <div>Имя: {{ content.name }}</div>
+              </div>
+              <h1>Контакты</h1>
+              <div class="d-flex flex-column">
+                  <div>Почта: {{ content.email }}</div>
+                  <div>Телефон: {{ content.phone }}</div>
+              </div>
+          </div>
+    </div>
+</div>
+{% endblock %}

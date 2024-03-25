@@ -3,7 +3,20 @@
 {% block content %}
 <div class="d-flex flex-column bd-highlight mb-3">
 {% for item in range(10) %}
-    <div class="p-2 bd-highlight">item</div>
+    <div class="d-flex flex-row bd-highlight mb-3">
+        <div class="p-2 bd-highlight">{{ content[item].Title }}</div>
+        <div class="p-2 bd-highlight">{{ content[item].Description }}</div>
+    </div>
 {% endfor %}
+{% if page_num == 1%}
+    <a class="btn btn-primary" href="/hostels/page/{{ page_num + 1 }}">Следующая</a>
+{% elif page_num == 1314%}
+    <a class="btn btn-primary" href="/hostels/page/{{ page_num - 1 }}">Предыдущая</a>
+{% else %}
+    <div class="d-flex flex-row bd-highlight mb-3">
+        <div class="p-2 bd-highlight"><a class="btn btn-primary" href="/hostels/page/{{ page_num - 1 }}">Назад</a></div>
+        <div class="p-2 bd-highlight"><a class="btn btn-primary" href="/hostels/page/{{ page_num + 1 }}">Следующая</a></div>
+    </div>
+{% endif %}
 </div>
 {% endblock %}
