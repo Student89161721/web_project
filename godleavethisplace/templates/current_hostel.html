@@ -1,5 +1,15 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Привет сладкий</h1>
+<div class="d-flex justify-content-center flex-row bd-highlight">
+    <div>Я ВООБЩЕ НЕ ДРУЖУ С КАРТИНКАМИ</div>
+    <div class="d-flex justify-content-center flex-column bd-highlight">
+        {% for item in sp %}
+            <div class="p-2 bd-highlight">
+                {{ item }} : {{ sp[item] }}
+            </div>
+        {% endfor %}
+    </div>
+</div>
+<a class="btn btn-success" href="/hostels/page/1">Добавить в корзину</a>
 {% endblock %}

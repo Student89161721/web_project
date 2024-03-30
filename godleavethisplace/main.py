@@ -8,6 +8,7 @@ from flask import jsonify
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from wtforms import PasswordField, StringField, TextAreaField, SubmitField, EmailField, BooleanField
 from forms.user import RegisterForm
+from forms.hostels import HostelsForm
 
 
 
@@ -27,12 +28,14 @@ def load_user(user_id):
     return db_sess.query(User).get(user_id)
 
 
-
 @app.route('/', methods=['GET', 'POST'])
 def index():
     param = {}
     param['title'] = 'Домашняя страница'
-    return render_template('index.html', **param)
+    if not current_user.is_authenticated:
+        return render_template('index.html', **param)
+    else:
+        return redirect('/hostels/page/1')
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -87,16 +90,19 @@ def hostels(page_num):
 @app.route('/hostels/current/<int:hostel_id>', methods=['GET', 'POST'])
 def hostels_current(hostel_id):
     db_sess = db_session.create_session()
-    content = db_sess.query(Hostel).filter(Hostel.id == hostel_id).all()
-    return render_template('current_hostel.html', content=content, hostel_id=hostel_id)
+
+    content = db_sess.query(Hostel).filter(Hostel.id == hostel_id).first()
+    sp = content.to_dict()
+    return render_template('current_hostel.html', content=content, sp=sp)
 
 @app.route('/hostels/edit/<int:hostel_id>',  methods=['GET', 'POST'])
 @login_required
-def add_news():
-    form = Hostel()
+def add_news(hostel_id):
+    form = HostelsForm()
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         hostel = Hostel()
+        #тут нужно из hostel_edit поставить приколы
         hostel.Title = 'ТЕСТОВАЯ ПОПЫТКА'
         hostel.Email = 'test@email.ru'
         hostel.Region = 'ТЕСТОВЫЙ РЕГИОН'
@@ -114,7 +120,7 @@ def user_current(user_id):
     print(current_user.id)
     content = db_sess.query(User).filter(User.id == user_id).first()
     if current_user.is_authenticated and current_user.id == user_id:
-        return render_template('account.html', content=content)
+        return render_template('account.html', content=content, id=id)
     else:
         return 'ЗАГЛУШКА'
 

@@ -4,8 +4,9 @@
 <div class="d-flex flex-column bd-highlight mb-3">
 {% for item in range(10) %}
     <div class="d-flex flex-row bd-highlight mb-3">
-        <div class="p-2 bd-highlight">{{ content[item].Title }}</div>
-        <div class="p-2 bd-highlight">{{ content[item].Description }}</div>
+        <div>КАРТИНКАААА</div>
+        <a class="btn" href="/hostels/current/{{ (page_num - 1) * 10 + item + 1}}">{{ content[item].Title }}</a>
+        <a class="btn bd-highlight" href="/hostels/current/{{ (page_num - 1) * 10 + item + 1}}">{{ content[item].Description }}</a>
     </div>
 {% endfor %}
 {% if page_num == 1%}

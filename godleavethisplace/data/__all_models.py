@@ -1,1 +1,1 @@
-from . import users, orders, hostels
+from . import users, orders
