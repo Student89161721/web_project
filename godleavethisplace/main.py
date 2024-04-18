@@ -1,8 +1,10 @@
 from flask import Flask, render_template, redirect, make_response, session, request, abort, url_for
 import sqlalchemy
+import datetime
 from data import db_session, hostel_api
 from data.users import User, LoginForm, RegisterForm
 from data.hostels import Hostel
+from data.orders import Order
 import sqlalchemy_serializer
 from flask import jsonify
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
@@ -26,7 +28,6 @@ def load_user(user_id):
 def load_user(user_id):
     db_sess = db_session.create_session()
     return db_sess.query(User).get(user_id)
-
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -89,10 +90,30 @@ def hostels(page_num):
 
 @app.route('/hostels/current/<int:hostel_id>', methods=['GET', 'POST'])
 def hostels_current(hostel_id):
+    global sp, content
     db_sess = db_session.create_session()
-
+    print(hostel_id, type(hostel_id))
+    if hostel_id == 0:
+        print('1234567890')
+        asv = request.form['name']
+        hostel_id = content.id
+        user_id = current_user.id
+        order = Order()
+        order.hostel_info = hostel_id
+        order.user_info = user_id
+        order.description = 'Test'
+        date_strings = asv.split('-')
+        print(date_strings)
+        date_strings = str((datetime.date(day=int(date_strings[-1]), month=int(date_strings[1]), year=int(date_strings[0])) - datetime.date.today()))
+        order.date_info = date_strings
+        db_sess.merge(order)
+        db_sess.commit()
+        #return render_template('tester.html', sp=sp)
+        #тут данные заказа вставлять
+        return date_strings
     content = db_sess.query(Hostel).filter(Hostel.id == hostel_id).first()
     sp = content.to_dict()
+    print(sp, 'fitst')
     return render_template('current_hostel.html', content=content, sp=sp)
 
 @app.route('/hostels/edit/<int:hostel_id>',  methods=['GET', 'POST'])
@@ -122,7 +143,7 @@ def user_current(user_id):
     if current_user.is_authenticated and current_user.id == user_id:
         return render_template('account.html', content=content, id=id)
     else:
-        return 'ЗАГЛУШКА'
+        return 'Пользователь не найден'
 
 
 @app.errorhandler(404)

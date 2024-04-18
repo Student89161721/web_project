@@ -10,6 +10,10 @@
             </div>
         {% endfor %}
     </div>
+    <form method="POST" action="/hostels/current/0">
+        <input class="name" name="name" placeholder="Календарь" type="date"/>
+        <input type="submit" value="Зарегистрироваться" />
+    </form>
+
 </div>
-<a class="btn btn-success" href="/hostels/page/1">Добавить в корзину</a>
 {% endblock %}
