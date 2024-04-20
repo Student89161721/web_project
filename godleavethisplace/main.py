@@ -13,21 +13,23 @@ from forms.user import RegisterForm
 from forms.hostels import HostelsForm
 
 
-
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 
 login_manager = LoginManager()
 login_manager.init_app(app)
 
+
 @login_manager.user_loader
 def load_user(user_id):
     db_sess = db_session.create_session()
     return db_sess.query(User).get(user_id)
 
+
 def load_user(user_id):
     db_sess = db_session.create_session()
     return db_sess.query(User).get(user_id)
+
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -50,6 +52,7 @@ def login():
             return redirect("/")
         return render_template('login.html',message="Неправильный логин или пароль",form=form)
     return render_template('login.html', title='Авторизация', form=form)
+
 
 @app.route('/logout')
 @login_required
@@ -82,11 +85,13 @@ def reqister():
         return redirect('/login')
     return render_template('register.html', title='Регистрация', form=form)
 
+
 @app.route('/hostels/page/<int:page_num>', methods=['GET', 'POST'])
 def hostels(page_num):
     db_sess = db_session.create_session()
     content = db_sess.query(Hostel).filter(Hostel.id <= 10 * page_num, 10 * (page_num - 1) <= Hostel.id).all()
     return render_template('hostels.html', content=content, page_num=page_num)
+
 
 @app.route('/hostels/current/<int:hostel_id>', methods=['GET', 'POST'])
 def hostels_current(hostel_id):
@@ -108,13 +113,14 @@ def hostels_current(hostel_id):
         order.date_info = date_strings
         db_sess.merge(order)
         db_sess.commit()
-        #return render_template('tester.html', sp=sp)
-        #тут данные заказа вставлять
+        # return render_template('tester.html', sp=sp)
+        # тут данные заказа вставлять
         return date_strings
     content = db_sess.query(Hostel).filter(Hostel.id == hostel_id).first()
     sp = content.to_dict()
     print(sp, 'fitst')
     return render_template('current_hostel.html', content=content, sp=sp)
+
 
 @app.route('/hostels/edit/<int:hostel_id>',  methods=['GET', 'POST'])
 @login_required
@@ -123,7 +129,7 @@ def add_news(hostel_id):
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         hostel = Hostel()
-        #тут нужно из hostel_edit поставить приколы
+        # тут нужно из hostel_edit поставить приколы
         hostel.Title = 'ТЕСТОВАЯ ПОПЫТКА'
         hostel.Email = 'test@email.ru'
         hostel.Region = 'ТЕСТОВЫЙ РЕГИОН'
@@ -134,6 +140,7 @@ def add_news(hostel_id):
         return redirect('/')
     return render_template('hostels_edit.html', title='Добавление новости',
                            form=form)
+
 
 @app.route('/user/<int:user_id>', methods=['GET', 'POST'])
 def user_current(user_id):
@@ -155,19 +162,20 @@ def not_found(error):
 def bad_request(_):
     return make_response(jsonify({'error': 'Bad Request'}), 400)
 
+
 def main():
     db_session.global_init("db/data2.sqlite")
-    #hostel = Hostel()
-    #hostel.Title = "ТЕСТ"
-    #hostel.Email = "TEST@mail.ru"
-    #hostel.Region = 'TEST REG'
-    #hostel.Parsing_dates = '123'
-    #db_sess = db_session.create_session()
-    #db_sess.add(hostel)
-    #db_sess.commit()
+    # hostel = Hostel()
+    # hostel.Title = "ТЕСТ"
+    # hostel.Email = "TEST@mail.ru"
+    # hostel.Region = 'TEST REG'
+    # hostel.Parsing_dates = '123'
+    # db_sess = db_session.create_session()
+    # db_sess.add(hostel)
+    # db_sess.commit()
     app.register_blueprint(hostel_api.blueprint)
     app.run()
-    #db_session.global_init("db/data2.sqlite")
+    # db_session.global_init("db/data2.sqlite")
 
 
 if __name__ == '__main__':
