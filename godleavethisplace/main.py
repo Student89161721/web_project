@@ -91,30 +91,46 @@ def hostels(page_num):
 @app.route('/hostels/current/<int:hostel_id>', methods=['GET', 'POST'])
 def hostels_current(hostel_id):
     global sp, content
+    err = ''
     db_sess = db_session.create_session()
     print(hostel_id, type(hostel_id))
     if hostel_id == 0:
-        print('1234567890')
-        asv = request.form['name']
         hostel_id = content.id
         user_id = current_user.id
         order = Order()
-        order.hostel_info = hostel_id
-        order.user_info = user_id
-        order.description = 'Test'
-        date_strings = asv.split('-')
-        print(date_strings)
-        date_strings = str((datetime.date(day=int(date_strings[-1]), month=int(date_strings[1]), year=int(date_strings[0])) - datetime.date.today()))
-        order.date_info = date_strings
-        db_sess.merge(order)
-        db_sess.commit()
+        order.hostel_info = content.id
+        order.user_info = current_user.id
+
+
+        asv = request.form['calendar']
+        order.description = request.form['comment']
+        print(asv)
+        if asv != '':
+            order = Order()
+            order.hostel_info = content.id
+            order.user_info = current_user.id
+
+            order.description = request.form['comment']
+
+            date_strings = asv.split('-')
+            date_strings = (datetime.date(day=int(date_strings[-1]), month=int(date_strings[1]),
+                                                     year=int(date_strings[0])))
+            print((date_strings - datetime.date.today()).days)
+            if (date_strings - datetime.date.today()).days < 0:
+                err = 'данные ошибочны'
+            print(date_strings)
+            order.date_info = date_strings
+            db_sess.merge(order)
+            db_sess.commit()
+
+        else:
+            err = 'данные ошибочны'
         #return render_template('tester.html', sp=sp)
         #тут данные заказа вставлять
-        return date_strings
     content = db_sess.query(Hostel).filter(Hostel.id == hostel_id).first()
     sp = content.to_dict()
     print(sp, 'fitst')
-    return render_template('current_hostel.html', content=content, sp=sp)
+    return render_template('current_hostel.html', content=content, sp=sp, err=err)
 
 @app.route('/hostels/edit/<int:hostel_id>',  methods=['GET', 'POST'])
 @login_required
@@ -139,9 +155,10 @@ def add_news(hostel_id):
 def user_current(user_id):
     db_sess = db_session.create_session()
     print(current_user.id)
+    order = db_sess.query(Order).filter(Order.user_info == user_id)
     content = db_sess.query(User).filter(User.id == user_id).first()
     if current_user.is_authenticated and current_user.id == user_id:
-        return render_template('account.html', content=content, id=id)
+        return render_template('account.html', content=content, id=id, order=order, date=datetime.date.today())
     else:
         return 'Пользователь не найден'
 
@@ -152,11 +169,12 @@ def not_found(error):
 
 
 @app.errorhandler(400)
-def bad_request(_):
+def bad_request():
     return make_response(jsonify({'error': 'Bad Request'}), 400)
 
 def main():
     db_session.global_init("db/data2.sqlite")
+
     #hostel = Hostel()
     #hostel.Title = "ТЕСТ"
     #hostel.Email = "TEST@mail.ru"
