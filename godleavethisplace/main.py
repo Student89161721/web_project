@@ -33,8 +33,7 @@ def load_user(user_id):
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    param = {}
-    param['title'] = 'Домашняя страница'
+    param = {'title': 'Домашняя страница'}
     if not current_user.is_authenticated:
         return render_template('index.html', **param)
     else:
@@ -50,7 +49,7 @@ def login():
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
             return redirect("/")
-        return render_template('login.html',message="Неправильный логин или пароль",form=form)
+        return render_template('login.html', message="Неправильный логин или пароль", form=form)
     return render_template('login.html', title='Авторизация', form=form)
 
 
@@ -89,37 +88,50 @@ def reqister():
 @app.route('/hostels/page/<int:page_num>', methods=['GET', 'POST'])
 def hostels(page_num):
     db_sess = db_session.create_session()
-    content = db_sess.query(Hostel).filter(Hostel.id <= 10 * page_num, 10 * (page_num - 1) <= Hostel.id).all()
-    return render_template('hostels.html', content=content, page_num=page_num)
+    cont = db_sess.query(Hostel).filter(Hostel.id <= 10 * page_num, 10 * (page_num - 1) <= Hostel.id).all()
+    return render_template('hostels.html', content=cont, page_num=page_num)
 
 
 @app.route('/hostels/current/<int:hostel_id>', methods=['GET', 'POST'])
 def hostels_current(hostel_id):
     global sp, content
+    err = ''
     db_sess = db_session.create_session()
     print(hostel_id, type(hostel_id))
     if hostel_id == 0:
-        print('1234567890')
-        asv = request.form['name']
         hostel_id = content.id
         user_id = current_user.id
         order = Order()
-        order.hostel_info = hostel_id
-        order.user_info = user_id
-        order.description = 'Test'
-        date_strings = asv.split('-')
-        print(date_strings)
-        date_strings = str((datetime.date(day=int(date_strings[-1]), month=int(date_strings[1]), year=int(date_strings[0])) - datetime.date.today()))
-        order.date_info = date_strings
-        db_sess.merge(order)
-        db_sess.commit()
-        # return render_template('tester.html', sp=sp)
-        # тут данные заказа вставлять
-        return date_strings
+        order.hostel_info = content.id
+        order.user_info = current_user.id
+
+        asv = request.form['calendar']
+        order.description = request.form['comment']
+        print(asv)
+        if asv != '':
+            order = Order()
+            order.hostel_info = content.id
+            order.user_info = current_user.id
+
+            order.description = request.form['comment']
+
+            date_strings = asv.split('-')
+            date_strings = (datetime.date(day=int(date_strings[-1]), month=int(date_strings[1]),
+                                          year=int(date_strings[0])))
+            print((date_strings - datetime.date.today()).days)
+            if (date_strings - datetime.date.today()).days < 0:
+                err = 'данные ошибочны'
+            print(date_strings)
+            order.date_info = date_strings
+            db_sess.merge(order)
+            db_sess.commit()
+
+        else:
+            err = 'данные ошибочны'
     content = db_sess.query(Hostel).filter(Hostel.id == hostel_id).first()
     sp = content.to_dict()
     print(sp, 'fitst')
-    return render_template('current_hostel.html', content=content, sp=sp)
+    return render_template('current_hostel.html', content=content, sp=sp, err=err)
 
 
 @app.route('/hostels/edit/<int:hostel_id>',  methods=['GET', 'POST'])
@@ -129,7 +141,6 @@ def add_news(hostel_id):
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         hostel = Hostel()
-        # тут нужно из hostel_edit поставить приколы
         hostel.Title = 'ТЕСТОВАЯ ПОПЫТКА'
         hostel.Email = 'test@email.ru'
         hostel.Region = 'ТЕСТОВЫЙ РЕГИОН'
@@ -146,36 +157,28 @@ def add_news(hostel_id):
 def user_current(user_id):
     db_sess = db_session.create_session()
     print(current_user.id)
-    content = db_sess.query(User).filter(User.id == user_id).first()
+    order = db_sess.query(Order).filter(Order.user_info == user_id)
+    cont = db_sess.query(User).filter(User.id == user_id).first()
     if current_user.is_authenticated and current_user.id == user_id:
-        return render_template('account.html', content=content, id=id)
+        return render_template('account.html', content=cont, id=id, order=order, date=datetime.date.today())
     else:
         return 'Пользователь не найден'
 
 
 @app.errorhandler(404)
-def not_found(error):
+def not_found():
     return make_response(jsonify({'error': 'Not found'}), 404)
 
 
 @app.errorhandler(400)
-def bad_request(_):
+def bad_request():
     return make_response(jsonify({'error': 'Bad Request'}), 400)
 
 
 def main():
     db_session.global_init("db/data2.sqlite")
-    # hostel = Hostel()
-    # hostel.Title = "ТЕСТ"
-    # hostel.Email = "TEST@mail.ru"
-    # hostel.Region = 'TEST REG'
-    # hostel.Parsing_dates = '123'
-    # db_sess = db_session.create_session()
-    # db_sess.add(hostel)
-    # db_sess.commit()
     app.register_blueprint(hostel_api.blueprint)
     app.run()
-    # db_session.global_init("db/data2.sqlite")
 
 
 if __name__ == '__main__':

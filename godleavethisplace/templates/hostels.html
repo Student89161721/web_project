@@ -4,7 +4,7 @@
 <div class="d-flex flex-column bd-highlight mb-3">
 {% for item in range(10) %}
     <div class="d-flex flex-row bd-highlight mb-3">
-        <div><img src="/godleavethisplace/images/Test.jpg"></div>
+        <div><img src="/static/images/{{ (item % 5) + 1 }}.png"></div>
         <a class="btn" href="/hostels/current/{{ (page_num - 1) * 10 + item + 1}}">{{ content[item].Title }}</a>
         <a class="btn bd-highlight" href="/hostels/current/{{ (page_num - 1) * 10 + item + 1}}">{{ content[item].Description }}</a>
     </div>
