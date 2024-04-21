@@ -10,13 +10,11 @@ class Order(SqlAlchemyBase, SerializerMixin):
     id = sqlalchemy.Column(sqlalchemy.Integer,
                            primary_key=True, autoincrement=True)
 
-    name = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    #name = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     #несколько вариантов хранить отдельно стартовую дату + обьект data.time.delay который будет временем брони или в формате 01.01.2000:02.01.2000
-    description_to_order = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     user_info = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("users.id"),  nullable=False)
     hostel_info = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
-    date_info = sqlalchemy.Column(sqlalchemy.String)
-    services_info = sqlalchemy.Column(sqlalchemy.Integer)
+    date_info = sqlalchemy.Column(sqlalchemy.Date)
     description = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     #мб системная инфа либо описание/предпочтение к заказу
     created_date = sqlalchemy.Column(sqlalchemy.String, default=str(datetime.date.today()))

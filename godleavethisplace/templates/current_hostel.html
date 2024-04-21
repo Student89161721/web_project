@@ -11,8 +11,11 @@
         {% endfor %}
     </div>
     <form method="POST" action="/hostels/current/0">
-        <input class="name" name="name" placeholder="Календарь" type="date"/>
-        <input type="submit" value="Зарегистрироваться" />
+        <input name="calendar" placeholder="Календарь" type="date"/>
+        <p>Комментарий<Br>
+            <textarea name="comment" cols="40" rows="3"></textarea></p>
+        <p><input type="submit" value="Отправить">
+        {{ err }}
     </form>
 
 </div>
