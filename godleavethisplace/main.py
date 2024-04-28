@@ -3,7 +3,7 @@ import sqlalchemy
 import datetime
 from data import db_session, hostel_api
 from data.users import User, LoginForm, RegisterForm
-from data.hostels import Hostel
+from data.hostels import Hostel, HostelsForm
 from data.orders import Order
 import sqlalchemy_serializer
 from flask import jsonify
@@ -37,8 +37,10 @@ def index():
     if not current_user.is_authenticated:
         return render_template('index.html', **param)
     else:
-        return redirect('/hostels/page/1')
-
+        if current_user.is_master == 1:
+            return redirect('/hostels/page/1')
+        else:
+            return redirect(f'/user/{current_user.id}')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -78,18 +80,32 @@ def reqister():
             email=form.email.data,
             about=form.about.data
         )
+        v = request.form['contact']
+        if v == 'email':
+            user.is_master = 1
+        else:
+            user.is_master = 2
         user.set_password(form.password.data)
         db_sess.add(user)
         db_sess.commit()
-        return redirect('/login')
+        login_user(user)
+        return redirect('/')
     return render_template('register.html', title='Регистрация', form=form)
 
 
 @app.route('/hostels/page/<int:page_num>', methods=['GET', 'POST'])
 def hostels(page_num):
+    global h_filter
     db_sess = db_session.create_session()
-    cont = db_sess.query(Hostel).filter(Hostel.id <= 10 * page_num, 10 * (page_num - 1) <= Hostel.id).all()
-    return render_template('hostels.html', content=cont, page_num=page_num)
+    if h_filter is None:
+        cont = db_sess.query(Hostel).filter(Hostel.id <= 10 * page_num, 10 * (page_num - 1) <= Hostel.id).all()
+    else:
+        cont = (db_sess.query(Hostel).filter(Hostel.Region == h_filter).all
+                ())
+    if request.method == "POST":
+        h_filter = request.form.getlist('year[]')[0]
+
+    return render_template('hostels.html', content=cont, page_num=page_num, alt_h=alt_h)
 
 
 @app.route('/hostels/current/<int:hostel_id>', methods=['GET', 'POST'])
@@ -107,7 +123,6 @@ def hostels_current(hostel_id):
 
         asv = request.form['calendar']
         order.description = request.form['comment']
-        print(asv)
         if asv != '':
             order = Order()
             order.hostel_info = content.id
@@ -134,23 +149,41 @@ def hostels_current(hostel_id):
     return render_template('current_hostel.html', content=content, sp=sp, err=err)
 
 
-@app.route('/hostels/edit/<int:hostel_id>',  methods=['GET', 'POST'])
+@app.route('/hostels/add',  methods=['GET', 'POST'])
 @login_required
-def add_news(hostel_id):
+def add_news():
     form = HostelsForm()
-    if form.validate_on_submit():
+    if form.is_submitted():
         db_sess = db_session.create_session()
         hostel = Hostel()
-        hostel.Title = 'ТЕСТОВАЯ ПОПЫТКА'
-        hostel.Email = 'test@email.ru'
-        hostel.Region = 'ТЕСТОВЫЙ РЕГИОН'
-        hostel.Parsing_dates = 'ТЕСТОВАЯ ШТУКА'
 
-        db_sess.merge(hostel)
+        hostel.Title = form.Title.data
+        hostel.Email = form.Email.data
+        hostel.Region = form.Region.data
+        hostel.Websites = form.Websites.data
+        hostel.Cell_phones = form.Cell_phones.data
+        hostel.Description = form.Description.data
+        hostel.Facebook = form.Facebook.data
+        hostel.VK = form.VK.data
+        hostel.Viber = form.Viber.data
+        hostel.WhatsApp = form.WhatsApp.data
+        hostel.master_id = current_user.id
+
+        db_sess.add(hostel)
         db_sess.commit()
         return redirect('/')
-    return render_template('hostels_edit.html', title='Добавление новости',
-                           form=form)
+    return render_template('hostels_add.html', form=form)
+
+@app.route('/hostels/del/<int:hostel_id>',  methods=['GET', 'POST'])
+@login_required
+def del_hostel(hostel_id):
+    db_sess = db_session.create_session()
+    hostel = db_sess.query(Hostel).filter(Hostel.id == hostel_id).all()[0]
+    print(hostel)
+    db_sess.delete(hostel)
+    db_sess.commit()
+    return redirect('/')
+
 
 
 @app.route('/user/<int:user_id>', methods=['GET', 'POST'])
@@ -159,8 +192,12 @@ def user_current(user_id):
     print(current_user.id)
     order = db_sess.query(Order).filter(Order.user_info == user_id)
     cont = db_sess.query(User).filter(User.id == user_id).first()
+    trust = db_sess.query(Hostel).filter(Hostel.master_id == user_id).all()
+    print(order, trust)
+    [print(i.id) for i in trust]
     if current_user.is_authenticated and current_user.id == user_id:
-        return render_template('account.html', content=cont, id=id, order=order, date=datetime.date.today())
+        return render_template('account.html', content=cont, id=user_id, order=order,
+                               date=datetime.date.today(), ismaster=str(current_user.is_master), hostels=trust)
     else:
         return 'Пользователь не найден'
 
@@ -176,10 +213,15 @@ def bad_request():
 
 
 def main():
+    global alt_h
     db_session.global_init("db/data2.sqlite")
     app.register_blueprint(hostel_api.blueprint)
+    db_sess = db_session.create_session()
+    alt_h = list(set([i.Region for i in db_sess.query(Hostel).all()]))[1:]
+    alt_h = list(filter(lambda x: len(str(x)) > 4, alt_h))
+    db_sess.close()
     app.run()
 
-
+h_filter = None
 if __name__ == '__main__':
     main()

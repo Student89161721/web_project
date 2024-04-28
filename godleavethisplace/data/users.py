@@ -22,12 +22,14 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     hashed_password = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     created_date = sqlalchemy.Column(sqlalchemy.DateTime,
                                      default=datetime.datetime.now)
+    is_master = sqlalchemy.Column(sqlalchemy.String, nullable=False)
 
     def set_password(self, password):
         self.hashed_password = generate_password_hash(password)
 
     def check_password(self, password):
         return check_password_hash(self.hashed_password, password)
+
 
 class LoginForm(FlaskForm):
     email = EmailField('Почта', validators=[DataRequired()])
@@ -43,4 +45,4 @@ class RegisterForm(FlaskForm):
     password_again = PasswordField('Повторите пароль', validators=[DataRequired()])
     name = StringField('Имя пользователя', validators=[DataRequired()])
     about = TextAreaField("Немного о себе")
-    submit = SubmitField('Войти')
+    submit = SubmitField('Зарегистрироваться')

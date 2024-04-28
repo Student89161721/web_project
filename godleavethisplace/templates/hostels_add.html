@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Добавление отеля</h1>
+<form action="" method="post">
+    {{ form.hidden_tag() }}
+    <p>
+        {{ form.Title.label }}<br>
+        {{ form.Title(class="form-control") }}<br>
+        {% for error in form.Title.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.Websites.label }}<br>
+        {{ form.Websites(class="form-control") }}<br>
+        {% for error in form.Websites.errors %}
+            <p content="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.Description.label }}<br>
+        {{ form.Description(class="form-control") }}<br>
+        {% for error in form.Description.errors %}
+            <p content="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.Cell_phones.label }}<br>
+        {{ form.Cell_phones(class="form-control") }}<br>
+        {% for error in form.Cell_phones.errors %}
+            <p content="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.Landline_phones.label }}<br>
+        {{ form.Landline_phones(class="form-control") }}<br>
+        {% for error in form.Landline_phones.errors %}
+            <p content="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.Email.label }}<br>
+        {{ form.Email(class="form-control") }}<br>
+        {% for error in form.Email.errors %}
+            <p content="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.Locality.label }}<br>
+        {{ form.Locality(class="form-control") }}<br>
+        {% for error in form.Locality.errors %}
+            <p content="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.VK.label }}<br>
+        {{ form.VK(class="form-control") }}<br>
+        {% for error in form.VK.errors %}
+            <p content="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.Instagram.label }}<br>
+        {{ form.Instagram(class="form-control") }}<br>
+        {% for error in form.Instagram.errors %}
+            <p content="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.Facebook.label }}<br>
+        {{ form.Facebook(class="form-control") }}<br>
+        {% for error in form.Facebook.errors %}
+            <p content="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.WhatsApp.label }}<br>
+        {{ form.WhatsApp(class="form-control") }}<br>
+        {% for error in form.WhatsApp.errors %}
+            <p content="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.Viber.label }}<br>
+        {{ form.Viber(class="form-control") }}<br>
+        {% for error in form.Viber.errors %}
+            <p content="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.Telegram.label }}<br>
+        {{ form.Telegram(class="form-control") }}<br>
+        {% for error in form.Telegram.errors %}
+            <p content="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.Twitter.label }}<br>
+        {{ form.Twitter(class="form-control") }}<br>
+        {% for error in form.Twitter.errors %}
+            <p content="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </p>
+    <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+    {{message}}
+    123454
+</form>
+{% endblock %}

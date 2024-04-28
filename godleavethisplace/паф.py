@@ -1,4 +1,6 @@
-import datetime
-
-v = datetime.date.today()
-print((datetime.datetime.today()).date())
+[1 1 0
+ 1 1 0
+ 1 1 0
+ 0 0 0
+ 1 0 0
+ 1 0 0]

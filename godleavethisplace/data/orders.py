@@ -1,7 +1,13 @@
 import datetime
+from flask_login import UserMixin
 import sqlalchemy
 from sqlalchemy_serializer import SerializerMixin
+from sqlalchemy import orm
 from .db_session import SqlAlchemyBase
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_wtf import FlaskForm
+from wtforms import PasswordField, StringField, TextAreaField, SubmitField, EmailField, BooleanField
+from wtforms.validators import DataRequired
 
 
 class Order(SqlAlchemyBase, SerializerMixin):
@@ -18,3 +24,5 @@ class Order(SqlAlchemyBase, SerializerMixin):
     description = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     #мб системная инфа либо описание/предпочтение к заказу
     created_date = sqlalchemy.Column(sqlalchemy.String, default=str(datetime.date.today()))
+
+
