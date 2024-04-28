@@ -2,7 +2,6 @@ import datetime
 from flask_login import UserMixin
 import sqlalchemy
 from sqlalchemy_serializer import SerializerMixin
-from sqlalchemy import orm
 from .db_session import SqlAlchemyBase
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_wtf import FlaskForm
@@ -36,7 +35,6 @@ class LoginForm(FlaskForm):
     password = PasswordField('Пароль', validators=[DataRequired()])
     remember_me = BooleanField('Запомнить меня')
     submit = SubmitField('Войти')
-
 
 
 class RegisterForm(FlaskForm):

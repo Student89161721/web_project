@@ -1,12 +1,8 @@
-import datetime
-from flask_login import UserMixin
 import sqlalchemy
 from sqlalchemy_serializer import SerializerMixin
-from sqlalchemy import orm
 from .db_session import SqlAlchemyBase
-from werkzeug.security import generate_password_hash, check_password_hash
 from flask_wtf import FlaskForm
-from wtforms import PasswordField, StringField, TextAreaField, SubmitField, EmailField, BooleanField
+from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
 
 
@@ -37,10 +33,8 @@ class Hostel(SqlAlchemyBase, SerializerMixin):
     Twitter = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     master_id = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
 
-    #review  можно сделать отдельную таблицу под отзывы и сюда их id подключать?
 
 class HostelsForm(FlaskForm):
-    #мне лень тут расписывать. Сделайте ппжпж
     Websites = StringField('Сайты', validators=[DataRequired()])
     Title = StringField('Заголовок', validators=[DataRequired()])
     Description = StringField('Описание', validators=[DataRequired()])

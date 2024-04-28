@@ -1,17 +1,13 @@
-from flask import Flask, render_template, redirect, make_response, session, request, abort, url_for
-import sqlalchemy
+from flask import Flask, render_template, redirect, make_response, request
 import datetime
 from data import db_session, hostel_api
 from data.users import User, LoginForm, RegisterForm
 from data.hostels import Hostel, HostelsForm
 from data.orders import Order
-import sqlalchemy_serializer
 from flask import jsonify
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-from wtforms import PasswordField, StringField, TextAreaField, SubmitField, EmailField, BooleanField
 from forms.user import RegisterForm
 from forms.hostels import HostelsForm
-
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
@@ -26,9 +22,9 @@ def load_user(user_id):
     return db_sess.query(User).get(user_id)
 
 
-def load_user(user_id):
-    db_sess = db_session.create_session()
-    return db_sess.query(User).get(user_id)
+# def load_user(user_id):
+#     db_sess = db_session.create_session()
+#     return db_sess.query(User).get(user_id)
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -42,12 +38,13 @@ def index():
         else:
             return redirect(f'/user/{current_user.id}')
 
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
         db_sess = db_session.create_session()
-        user = db_sess.query(User).filter(User.email == form.email.data).first()
+        user = db_sess.query(User).filter(User.email is form.email.data).first()
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
             return redirect("/")
@@ -71,7 +68,7 @@ def reqister():
                                    form=form,
                                    message="Пароли не совпадают")
         db_sess = db_session.create_session()
-        if db_sess.query(User).filter(User.email == form.email.data).first():
+        if db_sess.query(User).filter(User.email is form.email.data).first():
             return render_template('register.html', title='Регистрация',
                                    form=form,
                                    message="Такой пользователь уже есть")
@@ -116,7 +113,6 @@ def hostels_current(hostel_id):
     print(hostel_id, type(hostel_id))
     if hostel_id == 0:
         hostel_id = content.id
-        user_id = current_user.id
         order = Order()
         order.hostel_info = content.id
         order.user_info = current_user.id
@@ -143,13 +139,13 @@ def hostels_current(hostel_id):
 
         else:
             err = 'данные ошибочны'
-    content = db_sess.query(Hostel).filter(Hostel.id == hostel_id).first()
-    sp = content.to_dict()
+    content = db_sess.query(Hostel).filter(Hostel.id is hostel_id).first()
+    sp = content.to_dict
     print(sp, 'fitst')
     return render_template('current_hostel.html', content=content, sp=sp, err=err)
 
 
-@app.route('/hostels/add',  methods=['GET', 'POST'])
+@app.route('/hostels/add', methods=['GET', 'POST'])
 @login_required
 def add_news():
     form = HostelsForm()
@@ -174,25 +170,25 @@ def add_news():
         return redirect('/')
     return render_template('hostels_add.html', form=form)
 
-@app.route('/hostels/del/<int:hostel_id>',  methods=['GET', 'POST'])
+
+@app.route('/hostels/del/<int:hostel_id>', methods=['GET', 'POST'])
 @login_required
 def del_hostel(hostel_id):
     db_sess = db_session.create_session()
-    hostel = db_sess.query(Hostel).filter(Hostel.id == hostel_id).all()[0]
+    hostel = db_sess.query(Hostel).filter(Hostel.id is hostel_id).all()[0]
     print(hostel)
     db_sess.delete(hostel)
     db_sess.commit()
     return redirect('/')
 
 
-
 @app.route('/user/<int:user_id>', methods=['GET', 'POST'])
 def user_current(user_id):
     db_sess = db_session.create_session()
     print(current_user.id)
-    order = db_sess.query(Order).filter(Order.user_info == user_id)
-    cont = db_sess.query(User).filter(User.id == user_id).first()
-    trust = db_sess.query(Hostel).filter(Hostel.master_id == user_id).all()
+    order = db_sess.query(Order).filter(Order.user_info is user_id)
+    cont = db_sess.query(User).filter(User.id is user_id).first()
+    trust = db_sess.query(Hostel).filter(Hostel.master_id is user_id).all()
     print(order, trust)
     [print(i.id) for i in trust]
     if current_user.is_authenticated and current_user.id == user_id:
@@ -212,6 +208,11 @@ def bad_request():
     return make_response(jsonify({'error': 'Bad Request'}), 400)
 
 
+alt_h = ''
+sp = ''
+content = ''
+
+
 def main():
     global alt_h
     db_session.global_init("db/data2.sqlite")
@@ -221,6 +222,7 @@ def main():
     alt_h = list(filter(lambda x: len(str(x)) > 4, alt_h))
     db_sess.close()
     app.run()
+
 
 h_filter = None
 if __name__ == '__main__':

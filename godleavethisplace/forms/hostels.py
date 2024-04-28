@@ -1,10 +1,9 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, BooleanField, SubmitField, IntegerField
+from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
 
 
 class HostelsForm(FlaskForm):
-    #мне лень тут расписывать. Сделайте ппжпж
     Websites = StringField('Сайты', validators=[DataRequired()])
     Title = StringField('Заголовок', validators=[DataRequired()])
     Description = StringField('Описание', validators=[DataRequired()])
